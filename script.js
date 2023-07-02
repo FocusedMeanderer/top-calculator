@@ -10,7 +10,7 @@ function Calculator() {
     '-': (a, b) => a - b,
     '*': (a, b) => a * b,
     '/': (a, b) => a / b,
-    '%': (a, b) => a / b,
+    '%': (a, b) => a % b,
   }
 }
 
@@ -31,14 +31,14 @@ function arrangeControls() {
 
 function isOperator(char) {
   return (char === '+' || char === '-' || char === '/' || char === '*'
-    || char === '=');
+    || char === '%' || char === '=');
 }
 
 function sanityCheck() {
   const text = equation.textContent;
 
-  if (text.match(/[\+-\/\*\.]\s*[\+-\/\*\.]+/) ||
-    (text.match(/^\s*[\+-\/\*\.]/)))
+  if (text.match(/[%\+-\/\*\.]\s*[%\+-\/\*\.=]+/) ||
+    (text.match(/^\s*[%\+-\/\*\.]/)))
     return false;
 
   return true;
@@ -56,7 +56,16 @@ function sanityCheck() {
   When we only have one element left, we have our final result.
 */
 function evaluate() {
-  const tokens = equation.textContent.replace(/\s*=\s*$/, '').split(' ');
+  const tokens = equation.textContent.replace(/\s?=\s?$/, '').split(' ');
+
+  let precisionDigits = 6;
+
+  tokens.forEach(token => {
+    if (token.indexOf('.') > -1) {
+      precisionDigits = (token.length - 1 - token.indexOf('.') > precisionDigits) ?
+        token.length - 1 - token.indexOf('.') : precisionDigits;
+    }
+  });
 
   if (sanityCheck() === false) {
     result.textContent = 'Error';
@@ -69,23 +78,27 @@ function evaluate() {
   }
 
   do {
+    if (tokens[1] === '/' && +tokens[2] === 0) {
+      result.textContent = 'Divide by Zero Error';
+      return;
+    }
     let thisOperation = calc.op[tokens[1]](+tokens[0], +tokens[2]);
     tokens.splice(0, 3, thisOperation);
   } while (tokens.length >= 3);
 
-  result.textContent = tokens[0];
+  result.textContent = +tokens[0].toFixed(precisionDigits);
 }
 
 function deleteLast() {
-  if (equation.textContent.match(/\s*=\s*$/)) {
-    reset();
+  if (equation.textContent.charAt(equation.textContent.length - 1) === ' '){
+    equation.textContent = equation.textContent.slice(0, equation.textContent.length - 3);
   }
   else {
-    equation.textContent = equation.textContent.replace(/\s*.\s*$/, '');
-    
-    if (equation.textContent.length === 0)
-      reset();
+    equation.textContent = equation.textContent.slice(0, equation.textContent.length - 1);
   }
+    
+  if (equation.textContent.length === 0)
+    reset();
 }
 
 function padOperator(char) {
@@ -105,7 +118,8 @@ function equationBuilder(char) {
   }
 
   /*
-   Was the last entry = sign? Then, we should start over
+   Was the last entry '=' sign? Then, we should start over
+   unless the button pressed is also "="
    */
   if (equation.textContent.match(/\s*=\s*$/)) {
     if (char === '=') return;
@@ -113,21 +127,39 @@ function equationBuilder(char) {
   }
 
   if (equation.textContent === '0') {
-
-    if (isOperator(char)) {
-      equation.textContent = padOperator(char);
-      result.textContent = 'Error';
-    }
-    else {
+    if (!isOperator(char))
       equation.textContent = char;
-    }
+      if (char === '.') {
+        equation.textContent = '0'.concat(equation.textContent);
+      }
   }
   else {
     if (isOperator(char)) {
       equation.textContent = equation.textContent.concat(padOperator(char));
     }
     else {
-      equation.textContent = equation.textContent.concat(char);
+      const arr = equation.textContent.split(' ');
+      const token = arr[arr.length - 1];
+
+      console.log ('char is', char);
+      switch (char) {
+        case '.':
+          if (token.length === 0) {
+            console.log('token.length is 0');
+            equation.textContent = equation.textContent.concat('0', char);
+          }
+          else if (token.indexOf(char) >= 0) {
+            console.log(token, " . index", token.indexOf('.'))
+            return; // suppress more '.' in the same token
+          }
+          else {
+            equation.textContent = equation.textContent.concat(char);
+          }
+          break;
+        default:
+          console.log('case default');
+          equation.textContent = equation.textContent.concat(char);
+      }
     }    
 
     if (char === '=') {
