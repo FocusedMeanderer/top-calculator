@@ -23,8 +23,8 @@ function reset() {
 
 function arrangeControls() {
   controls.forEach(element => {
-    element.style.width = `${CALCWIDTH/4}px`;
-    element.style.height = `${CALCHEIGHT/6}px`;
+    element.style.width = `${(CALCWIDTH - 24)/4}px`;
+    element.style.height = `${(CALCHEIGHT - 35)/6}px`;
     element.style.border = '1px dotted #1f2937';
   });
 }
@@ -106,6 +106,7 @@ function padOperator(char) {
 }
 
 function equationBuilder(char) {
+  const arr = equation.textContent.split(' ');
 
   if (char == 'c' || char == 'C') {
     reset();
@@ -126,6 +127,16 @@ function equationBuilder(char) {
     reset();
   }
 
+  if (equation.textContent.length >= 26 && char !== '='){
+    // Will overflow, suppress further entries
+    return;
+  }
+
+  if (arr[arr.length - 1].length >= 15 && Number.isInteger(+char)) {
+    // Limit 15 digits per operand
+    return;
+  }
+
   if (equation.textContent === '0') {
     if (!isOperator(char))
       equation.textContent = char;
@@ -141,15 +152,12 @@ function equationBuilder(char) {
       const arr = equation.textContent.split(' ');
       const token = arr[arr.length - 1];
 
-      console.log ('char is', char);
       switch (char) {
         case '.':
           if (token.length === 0) {
-            console.log('token.length is 0');
             equation.textContent = equation.textContent.concat('0', char);
           }
           else if (token.indexOf(char) >= 0) {
-            console.log(token, " . index", token.indexOf('.'))
             return; // suppress more '.' in the same token
           }
           else {
@@ -157,10 +165,9 @@ function equationBuilder(char) {
           }
           break;
         default:
-          console.log('case default');
           equation.textContent = equation.textContent.concat(char);
       }
-    }    
+    }
 
     if (char === '=') {
       evaluate();
@@ -177,34 +184,53 @@ function equationBuilder(char) {
 }
 
 function handleKeyboardInput(e) {
-  switch(e.key) {
-    case '.':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case '=':
-    case '%':
-    case 'c':
-    case 'C':
-    case 'Backspace':
-      equationBuilder(e.key);
-      break;
-    case 'Enter':
+  const keys = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                 '+', '-', '*', '/', '%', 'c', 'C', '.', '=', 'Backspace', 'Enter' ];
+
+  if (keys.includes(e.key)) {
+    let dataKey = `[data-key='${e.key}']`;
+    
+    if (e.key === 'C') {
+      dataKey = `[data-key='${e.key.toLowerCase()}']`;
+    }
+    if (e.key === 'Enter') {
+      dataKey = `[data-key='=']`;
+    }
+    
+    const key = document.querySelector(dataKey);
+    
+    if (key && key.classList.contains('active')) {
+      key.classList.add('pressed');
+    }
+
+    if (e.key === 'Enter') {
       equationBuilder('=');
-      break;
-    default:
-      break;
+    }
+    else {
+      equationBuilder(e.key);
+    }
+  }
+}
+
+function handleKeyboardUp(e) {
+  const keys = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                 '+', '-', '*', '/', '%', 'c', 'C', '.', '=', 'Backspace', 'Enter' ];
+
+  if (keys.includes(e.key)) {
+    let dataKey = `[data-key='${e.key}']`;
+    
+    if (e.key === 'C') {
+      dataKey = `[data-key='${e.key.toLowerCase()}']`;
+    }
+    if (e.key === 'Enter') {
+      dataKey = `[data-key='=']`;
+    }
+    
+    const key = document.querySelector(dataKey);
+    
+    if (key && key.classList.contains('active')) {
+      key.classList.remove('pressed');
+    }
   }
 }
 
@@ -214,12 +240,30 @@ function handleClick(e) {
   }
 }
 
+function handleHover(e) {
+  if (e.target.classList.contains('active')) {
+    e.target.classList.add('pressed');
+  }
+}
+
+function handleMouseLeave(e) {
+  if (e.target.classList.contains('active')) {
+    e.target.classList.remove('pressed')
+  }
+}
+
 arrangeControls();
 
 const body = document.querySelector('body');
 const divControls = document.querySelector('div.controls');
 
 body.addEventListener('keydown', handleKeyboardInput);
+body.addEventListener('keyup', handleKeyboardUp);
 divControls.addEventListener('click', handleClick);
+
+controls.forEach(control => {
+  control.addEventListener('mouseover', handleHover);
+  control.addEventListener('mouseleave', handleMouseLeave);
+});
 
 reset();

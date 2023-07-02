@@ -28,26 +28,36 @@ div.calculator > div.container {
 div.calculator > div.container > div.result {
   height: 80px;
   width: 100%;
-  font-size: 80px;
+  font-size: 65px;
   text-align: right;
-  border: 1px solid #1f2937;
+  border: 1px solid rgba(31, 41, 55, 0.55);
   border-top: none;
   margin-bottom: 18px;
+  padding: 0 8px;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  white-space: nowrap;
 }
 
 div.calculator > div.container > div.equation {
   margin-top: 12px;
   height: 40px;
   width: 100%;
-  font-size: 40px;
+  font-size: 38px;
   text-align: right;
-  border: 1px solid #1f2937;
+  border: 1px solid rgba(31, 41, 55, 0.55);
   border-bottom: none;
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  padding: 0 8px;
+  white-space: nowrap;
+  font-family: monospace;
 }
 
 div.controls {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 div.control {
@@ -57,6 +67,8 @@ div.control {
   font-size: 2em;
   font-weight: 800;
   font-family: Arial, Helvetica, sans-serif;
+  border-radius: 30px;
+  background-color: rgba(31, 41, 55, 0.75);
 }
 
 span.superscript {
@@ -71,4 +83,9 @@ div.footer > div.container {
 
 p.copyright {
   padding: 52px auto;
+}
+
+.pressed {
+  background-color: rgba(31, 41, 55, 0.95) !important;
+  color: rgba(0, 255, 0, 0.95);
 }
