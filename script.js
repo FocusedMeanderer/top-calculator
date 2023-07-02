@@ -1,6 +1,6 @@
 const controls = document.querySelectorAll('div.control');
-const CALCWIDTH = 700;
-const CALCHEIGHT = 500;
+const CALCWIDTH = 500;
+const CALCHEIGHT = 450;
 const equation = document.querySelector('div.equation');
 const result = document.querySelector('div.result');
 
@@ -23,8 +23,8 @@ function reset() {
 
 function arrangeControls() {
   controls.forEach(element => {
-    element.style.width = `${(CALCWIDTH - 24)/4}px`;
-    element.style.height = `${(CALCHEIGHT - 35)/6}px`;
+    element.style.width = `${(CALCWIDTH)/4}px`;
+    element.style.height = `${(CALCHEIGHT)/6}px`;
     element.style.border = '1px dotted #1f2937';
   });
 }
@@ -243,12 +243,14 @@ function handleClick(e) {
 function handleHover(e) {
   if (e.target.classList.contains('active')) {
     e.target.classList.add('pressed');
+    e.target.classList.add('glow');
   }
 }
 
 function handleMouseLeave(e) {
   if (e.target.classList.contains('active')) {
     e.target.classList.remove('pressed')
+    e.target.classList.remove('glow');
   }
 }
 
