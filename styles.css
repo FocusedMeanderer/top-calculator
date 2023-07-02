@@ -25,13 +25,24 @@ div.calculator > div.container {
   flex-direction: column;
 }
 
-div.calculator > div.container > div.display {
+div.calculator > div.container > div.result {
   height: 80px;
   width: 100%;
   font-size: 80px;
   text-align: right;
   border: 1px solid #1f2937;
+  border-top: none;
+  margin-bottom: 18px;
+}
+
+div.calculator > div.container > div.equation {
   margin-top: 12px;
+  height: 40px;
+  width: 100%;
+  font-size: 40px;
+  text-align: right;
+  border: 1px solid #1f2937;
+  border-bottom: none;
 }
 
 div.controls {
